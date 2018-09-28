@@ -1,5 +1,6 @@
 package br.ufpe.cin.if710.rss
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setSupportActionBar(toolbar)
+        //setSupportActionBar(toolbar)
 
         RSS_FEED = getString(R.string.rssfeed) //url vem do arquivo de strings
         conteudoRSS = findViewById(R.id.conteudoRSS)
@@ -84,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         val id = item.getItemId()
 
         if (id == R.id.action_prefs) {
-           // Toast.makeText(this, "Item One Clicked", Toast.LENGTH_LONG).show()
+            startActivity(Intent(applicationContext,PrefsFragmentActivity::class.java))
             return true
         }
 
