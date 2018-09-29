@@ -64,10 +64,18 @@ class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenH
         get() = this.writableDatabase.rawQuery("SELECT $ITEM_TITLE, $ITEM_LINK, $ITEM_DATE, $ITEM_DESC FROM $DATABASE_TABLE WHERE $ITEM_UNREAD = true", null)
 
     fun markAsUnread(link: String): Boolean {
+        val item = getItemRSS(link)
+        val strSQL = "UPDATE $DATABASE_TABLE SET $ITEM_UNREAD = true WHERE $ITEM_LINK = $link"
+        val db = this.writableDatabase
+        db.execSQL(strSQL)
         return false
     }
 
     fun markAsRead(link: String): Boolean {
+        val item = getItemRSS(link)
+        val strSQL = "UPDATE $DATABASE_TABLE SET $ITEM_UNREAD = false WHERE $ITEM_LINK = $link"
+        val db = this.writableDatabase
+        db.execSQL(strSQL)
         return false
     }
 
