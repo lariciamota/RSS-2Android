@@ -1,14 +1,18 @@
 package br.ufpe.cin.if710.rss
 
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import br.ufpe.cin.if710.rss.ParserRSS.parse
-import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.io.ByteArrayOutputStream
@@ -18,9 +22,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
     var preference: Prefs? = null
-
 
     //ao fazer envio da resolucao, use este link no seu codigo!
     private var RSS_FEED: String? = null
@@ -40,8 +43,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //setSupportActionBar(toolbar)
-
         RSS_FEED = getString(R.string.rssfeed) //url vem do arquivo de strings
         conteudoRSS = findViewById(R.id.conteudoRSS)
 
@@ -49,14 +50,14 @@ class MainActivity : AppCompatActivity() {
         conteudoRSS?.layoutManager = linearLayoutManager //tipo de layout que será colocado o conteúdo do recycler
 
         preference = Prefs(this)
-        val rssFeed = preference!!.rssFeed
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onStart() {
         super.onStart()
         try {
             doAsync {
-                val feedXML = parse(getRssFeed(RSS_FEED!!)) //RSS passando pelo parser, retorno é uma lista de ItemRSS
+                val feedXML = parse(getRssFeed(preference!!.rssFeed)) //RSS passando pelo parser, retorno é uma lista de ItemRSS
                 val adapter = RecyclerCustomAdapter(feedXML) //personalizado para mostrar titulo e data
                 uiThread {
                     conteudoRSS!!.adapter = adapter //colocando o conteudo de fato na view (ja que mexe em ui deve ser feito na thread principal)
@@ -65,13 +66,11 @@ class MainActivity : AppCompatActivity() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
     }
 
-    private fun selectRSSFeed(feed: String){
-        //acao
-
-        preference!!.rssFeed = feed
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, p1: String?) {
+        val url = sharedPreferences!!.getString("rssfeed", "")
+        preference!!.rssFeed = url
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -82,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here.
-        val id = item.getItemId()
+        val id = item.itemId
 
         if (id == R.id.action_prefs) {
             startActivity(Intent(applicationContext,PrefsFragmentActivity::class.java))
@@ -112,6 +111,8 @@ class MainActivity : AppCompatActivity() {
             }
             val response = out.toByteArray()
             rssFeed = String(response, charset("UTF-8"))
+        } catch (e: Exception) {
+            findViewById<TextView>(R.id.errorURL).text = "URL não existe ou não está no formato correto"
         } finally {
             `in`?.close()
         }

@@ -1,8 +1,11 @@
 package br.ufpe.cin.if710.rss
 
-import android.support.v7.app.AppCompatActivity
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.preference.PreferenceFragment
+import android.support.v7.app.AppCompatActivity
+
 
 class PrefsFragmentActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,8 +15,9 @@ class PrefsFragmentActivity : AppCompatActivity() {
 
     }
 
-    // Fragmento que mostra a preference com username
-    class RSSPreferenceFragment : PreferenceFragment() {
+
+    // Fragmento que mostra a preference
+    class RSSPreferenceFragment : PreferenceFragment(), OnSharedPreferenceChangeListener {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -21,10 +25,23 @@ class PrefsFragmentActivity : AppCompatActivity() {
             // Carrega preferences a partir de um XML
             addPreferencesFromResource(R.xml.preferencias)
 
+            onSharedPreferenceChanged(null, "")
+
+        }
+
+        override fun onResume() {
+            super.onResume()
+            // Set up a listener whenever a key changes
+            preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        }
+
+        override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
+
         }
 
         companion object {
             protected val TAG = "RSSPrefsFragment"
         }
     }
+
 }
