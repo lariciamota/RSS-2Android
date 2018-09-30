@@ -3,7 +3,11 @@ package br.ufpe.cin.if710.rss
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Parcelable
+import android.os.ResultReceiver
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -24,7 +28,18 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
-class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
+class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener, MyResultReceiver.Receiver {
+    override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+        val data = resultData.get(MyResultReceiver.DATA_KEY) as List<ItemRSS>
+        val adapter = RecyclerCustomAdapter(data) //personalizado para mostrar titulo e data
+        doAsync {
+            uiThread{
+                conteudoRSS!!.adapter = adapter //colocando o conteudo de fato na view
+            }
+        }
+
+    }
+
     var preference: Prefs? = null
 
     //ao fazer envio da resolucao, use este link no seu codigo!
@@ -62,15 +77,11 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         Log.i("xablau", "ONSTART")
         try {
             doAsync {
-                Log.i("xablau", "ASYNC")
-                val feed = getRssFeed(preference!!.rssFeed)
-                Log.i("xablau", "DOWNLOADED FEED")
-                val feedXML = parse(feed) //RSS passando pelo parser, retorno é uma lista de ItemRSS
-                Log.i("xablau", feedXML.size.toString())
-                val adapter = RecyclerCustomAdapter(feedXML) //personalizado para mostrar titulo e data
-                uiThread {
-                    conteudoRSS!!.adapter = adapter //colocando o conteudo de fato na view (ja que mexe em ui deve ser feito na thread principal)
-                }
+                val downloadServiceIntent = Intent(applicationContext, DownloadFeedService::class.java)
+                downloadServiceIntent.putExtra("url", preference!!.rssFeed)
+                val myreceiver = MyResultReceiver(this@MainActivity)
+                downloadServiceIntent.putExtra(MyResultReceiver.INTENT_KEY, myreceiver)
+                startService(downloadServiceIntent)
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -102,36 +113,4 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     }
 
-    //Opcional - pesquise outros meios de obter arquivos da internet - bibliotecas, etc.
-    @Throws(IOException::class)
-    private fun getRssFeed(feed: String): String {
-        var `in`: InputStream? = null
-        var rssFeed = ""
-        try {
-            val url = URL(feed)
-            val conn = url.openConnection() as HttpURLConnection
-            `in` = conn.inputStream
-            val out = ByteArrayOutputStream()
-            val buffer = ByteArray(1024)
-            var count: Int
-            count = `in`!!.read(buffer)
-            while (count != -1) {
-                out.write(buffer, 0, count)
-                count = `in`!!.read(buffer)
-            }
-            val response = out.toByteArray()
-            rssFeed = String(response, charset("UTF-8"))
-            Log.i("xablau", rssFeed);
-//            findViewById<TextView>(R.id.errorURL).text = ""
-        } catch (e: Exception) {
-            Log.i("xablau", "ERRO");
-            e.printStackTrace();
-            Log.i("xablau", e.getStackTraceString())
-//            findViewById<TextView>(R.id.errorURL).text = "URL não existe ou não está no formato correto"
-        } finally {
-            Log.i("xablau", "FINALLY");
-            `in`?.close()
-        }
-        return rssFeed
-    }
 }

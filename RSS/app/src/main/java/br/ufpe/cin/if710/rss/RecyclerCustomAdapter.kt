@@ -24,14 +24,13 @@ class RecyclerCustomAdapter(private val items: List<ItemRSS>) : RecyclerView.Ada
     }
 
     override fun onBindViewHolder(holder: RecyclerCustomAdapter.MyViewHolder, position: Int) {
-        val db = SQLiteRSSHelper.getInstance(holder.view.context)
-        db.insertItem(items[position]) //inserindo item no banco de dados
+        val db = DataManipulation(holder.view.context)
         var txtViewTitle: TextView = holder.view.getChildAt(0) as TextView //a textview onde deverá ser colocado o título
         var txtViewDate: TextView = holder.view.getChildAt(1) as TextView //a textview onde deverá ser colocada a data de pub
         txtViewTitle.text = items[position].title //especificando qual texto da lista deve ser colocado na textview
         txtViewTitle.setOnClickListener {
             try{
-                db.markAsRead(items[position].link) //marcar noticia como lida ao clicar nela
+                db.markAsRead(items[position])
             } finally {
                 web_page_open(items[position].link, holder.view.context) //ao clicar no título deve abrir o navegador com o link da noticia
             }

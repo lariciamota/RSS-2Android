@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".PrefsFragmentActivity"></activity>
+        <service android:name=".DownloadFeedService"/>
     </application>
 
 </manifest>
