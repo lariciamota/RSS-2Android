@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 
 class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenHelper(c, DATABASE_NAME, null, DB_VERSION) {
@@ -26,22 +27,31 @@ class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenH
     }
 
     fun insertItem(title: String, pubDate: String, description: String, link: String): Long {
+        var ret: Long? = null
         val values = ContentValues()
         values.put(ITEM_TITLE, title)
         values.put(ITEM_DATE, pubDate)
         values.put(ITEM_DESC, description)
         values.put(ITEM_LINK, link)
         val db = this.writableDatabase
-        db.insert(DATABASE_TABLE, null, values)
+
+        if (getItemRSS(link) == null){
+            values.put(ITEM_UNREAD, true)
+            ret = db.insert(DATABASE_TABLE, null, values)
+        } else {
+            db.update(DATABASE_TABLE, values, "$ITEM_LINK = ?", arrayOf(link))
+            ret = 0
+        }
         db.close()
-        return 0.0.toLong() //qual o retorno?
+        Log.i("xablau", " retorno insert"+ret.toString())
+        return ret
     }
 
     @Throws(SQLException::class)
-    fun getItemRSS(link: String): ItemRSS {
-        val query = "SELECT $ITEM_TITLE, $ITEM_LINK, $ITEM_DATE, $ITEM_DESC FROM $DATABASE_TABLE WHERE $ITEM_LINK = $link"
+    fun getItemRSS(link: String): ItemRSS? {
+        val query = "SELECT $ITEM_TITLE, $ITEM_LINK, $ITEM_DATE, $ITEM_DESC FROM $DATABASE_TABLE WHERE $ITEM_LINK = ?"
         val db = this.writableDatabase
-        val cursor = db.rawQuery(query, null)
+        val cursor = db.rawQuery(query, arrayOf(link))
         var item: ItemRSS? = null
 
         if(cursor.moveToFirst()){
@@ -51,31 +61,36 @@ class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenH
             val link = cursor.getString(1)
             val date = cursor.getString(2)
             val description = cursor.getString(3)
+
             item = ItemRSS(title, link, date, description)
+
             cursor.close()
         }
-
-        db.close()
-        return item!!
+        return item
     }
 
     val items: Cursor?
         @Throws(SQLException::class)
-        get() = this.writableDatabase.rawQuery("SELECT $ITEM_TITLE, $ITEM_LINK, $ITEM_DATE, $ITEM_DESC FROM $DATABASE_TABLE WHERE $ITEM_UNREAD = true", null)
+        get() {
+            return this.writableDatabase.rawQuery("SELECT $ITEM_TITLE, $ITEM_LINK, $ITEM_DATE, $ITEM_DESC FROM $DATABASE_TABLE WHERE $ITEM_UNREAD = ?", arrayOf(true.toString()))
+        }
 
     fun markAsUnread(link: String): Boolean {
-        val item = getItemRSS(link)
-        val strSQL = "UPDATE $DATABASE_TABLE SET $ITEM_UNREAD = true WHERE $ITEM_LINK = $link"
+        val values = ContentValues()
+        values.put(ITEM_UNREAD, true)
         val db = this.writableDatabase
-        db.execSQL(strSQL)
+        val ret = db.update(DATABASE_TABLE, values, "$ITEM_LINK = ?", arrayOf(link))
+        db.close()
         return false
     }
 
     fun markAsRead(link: String): Boolean {
-        val item = getItemRSS(link)
-        val strSQL = "UPDATE $DATABASE_TABLE SET $ITEM_UNREAD = false WHERE $ITEM_LINK = $link"
+        val values = ContentValues()
+        values.put(ITEM_UNREAD, false)
         val db = this.writableDatabase
-        db.execSQL(strSQL)
+        val ret = db.update(DATABASE_TABLE, values, "$ITEM_LINK = ?", arrayOf(link))
+        Log.i("xablau", "lido "+ret.toString())
+        db.close()
         return false
     }
 

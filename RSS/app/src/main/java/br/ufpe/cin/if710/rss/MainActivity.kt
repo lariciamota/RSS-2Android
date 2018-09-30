@@ -11,9 +11,11 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import br.ufpe.cin.if710.rss.ParserRSS.parse
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.getStackTraceString
 import org.jetbrains.anko.uiThread
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -41,6 +43,7 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
         RSS_FEED = getString(R.string.rssfeed) //url vem do arquivo de strings
@@ -55,9 +58,15 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     override fun onStart() {
         super.onStart()
+
+        Log.i("xablau", "ONSTART")
         try {
             doAsync {
-                val feedXML = parse(getRssFeed(preference!!.rssFeed)) //RSS passando pelo parser, retorno é uma lista de ItemRSS
+                Log.i("xablau", "ASYNC")
+                val feed = getRssFeed(preference!!.rssFeed)
+                Log.i("xablau", "DOWNLOADED FEED")
+                val feedXML = parse(feed) //RSS passando pelo parser, retorno é uma lista de ItemRSS
+                Log.i("xablau", feedXML.size.toString())
                 val adapter = RecyclerCustomAdapter(feedXML) //personalizado para mostrar titulo e data
                 uiThread {
                     conteudoRSS!!.adapter = adapter //colocando o conteudo de fato na view (ja que mexe em ui deve ser feito na thread principal)
@@ -66,6 +75,7 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, p1: String?) {
@@ -111,9 +121,15 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
             }
             val response = out.toByteArray()
             rssFeed = String(response, charset("UTF-8"))
+            Log.i("xablau", rssFeed);
+//            findViewById<TextView>(R.id.errorURL).text = ""
         } catch (e: Exception) {
-            findViewById<TextView>(R.id.errorURL).text = "URL não existe ou não está no formato correto"
+            Log.i("xablau", "ERRO");
+            e.printStackTrace();
+            Log.i("xablau", e.getStackTraceString())
+//            findViewById<TextView>(R.id.errorURL).text = "URL não existe ou não está no formato correto"
         } finally {
+            Log.i("xablau", "FINALLY");
             `in`?.close()
         }
         return rssFeed

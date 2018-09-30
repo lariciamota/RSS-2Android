@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-
 
 class RecyclerCustomAdapter(private val items: List<ItemRSS>) : RecyclerView.Adapter<RecyclerCustomAdapter.MyViewHolder>()  {
     class MyViewHolder(val view: LinearLayout) : RecyclerView.ViewHolder(view)
@@ -24,11 +24,17 @@ class RecyclerCustomAdapter(private val items: List<ItemRSS>) : RecyclerView.Ada
     }
 
     override fun onBindViewHolder(holder: RecyclerCustomAdapter.MyViewHolder, position: Int) {
+        val db = SQLiteRSSHelper.getInstance(holder.view.context)
+        db.insertItem(items[position]) //inserindo item no banco de dados
         var txtViewTitle: TextView = holder.view.getChildAt(0) as TextView //a textview onde deverá ser colocado o título
         var txtViewDate: TextView = holder.view.getChildAt(1) as TextView //a textview onde deverá ser colocada a data de pub
         txtViewTitle.text = items[position].title //especificando qual texto da lista deve ser colocado na textview
         txtViewTitle.setOnClickListener {
-            web_page_open(items[position].link, holder.view.context) //ao clicar no título deve abrir o navegador com o link da noticia
+            try{
+                db.markAsRead(items[position].link) //marcar noticia como lida ao clicar nela
+            } finally {
+                web_page_open(items[position].link, holder.view.context) //ao clicar no título deve abrir o navegador com o link da noticia
+            }
         }
         txtViewDate.text = items[position].pubDate //especificando qual texto da lista deve ser colocado na textview
     }
