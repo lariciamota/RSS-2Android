@@ -1,6 +1,5 @@
 package br.ufpe.cin.if710.rss
 
-import android.util.Log
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -53,10 +52,8 @@ object ParserRSS {
     fun parse(rssFeed: String): List<ItemRSS> {
         val factory = XmlPullParserFactory.newInstance()
         val xpp = factory.newPullParser()
-        Log.i("xablau", "MIDDLE OF PARSING")
         xpp.setInput(StringReader(rssFeed))
         xpp.nextTag()
-        Log.i("xablau", "MIDDLE OF PARSING 2")
         return readRss(xpp)
     }
 
@@ -64,7 +61,6 @@ object ParserRSS {
     fun readRss(parser: XmlPullParser): List<ItemRSS> {
         val items = ArrayList<ItemRSS>()
         parser.require(XmlPullParser.START_TAG, null, "rss")
-        Log.i("xablau", "MIDDLE OF PARSING 3")
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
@@ -76,7 +72,6 @@ object ParserRSS {
                 skip(parser)
             }
         }
-        Log.i("xablau", "MIDDLE OF PARSING 4")
         return items
     }
 

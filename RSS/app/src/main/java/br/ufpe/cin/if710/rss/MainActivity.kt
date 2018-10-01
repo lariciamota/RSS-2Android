@@ -7,7 +7,6 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -35,9 +34,7 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
     }
 
     fun printFeed(){
-        Log.i("xablau", "PRINT")
         val data = db!!.getItems()
-        Log.i("xablau", "Data: $data")
         val adapter = RecyclerCustomAdapter(data)
         doAsync {
             uiThread {
@@ -98,7 +95,6 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         super.onStart()
         activityVisible = true
         configureReceiver()
-        Log.i("xablau", "ONSTART")
         try {
             doAsync {
                 val downloadServiceIntent = Intent(applicationContext, DownloadFeedService::class.java)

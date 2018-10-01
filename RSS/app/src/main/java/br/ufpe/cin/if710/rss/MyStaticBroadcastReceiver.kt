@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.support.v4.app.NotificationCompat
-import android.util.Log
 import android.widget.Toast
 
 class MyStaticBroadcastReceiver : BroadcastReceiver() {
@@ -27,7 +26,6 @@ class MyStaticBroadcastReceiver : BroadcastReceiver() {
         val isForeground = intent.getBooleanExtra("foreground", false)
         if (!isForeground){
             mNotifyManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            Log.i("xablau", "ONNOTIFICATION")
             //notificacao
             mNotificationIntent = Intent(context, MainActivity::class.java)
             //flag activity new task
@@ -44,7 +42,6 @@ class MyStaticBroadcastReceiver : BroadcastReceiver() {
 
             // passa notificacao para o notification manager
             mNotifyManager!!.notify(MY_NOTIFICATION_ID, notification)
-            Log.i("xablau", "ONNOTIFICATION dps de notificar")
             Toast.makeText(context, "INTENT Recebido pelo StaticReceiver", Toast.LENGTH_LONG).show()
 
         }

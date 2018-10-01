@@ -6,7 +6,6 @@ import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
 
 
 class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenHelper(c, DATABASE_NAME, null, DB_VERSION) {
@@ -43,7 +42,6 @@ class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenH
             ret = 0
         }
         db.close()
-        Log.i("xablau", " retorno insert"+ret.toString())
         return ret
     }
 
@@ -89,7 +87,6 @@ class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenH
         values.put(ITEM_UNREAD, false)
         val db = this.writableDatabase
         val ret = db.update(DATABASE_TABLE, values, "$ITEM_LINK = ?", arrayOf(link))
-        Log.i("xablau", "lido "+ret.toString())
         db.close()
         return false
     }
