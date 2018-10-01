@@ -17,6 +17,12 @@ import java.io.IOException
 
 
 class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
+    private var activityVisible: Boolean = false
+
+    fun isActivityVisible(): Boolean {
+        return activityVisible
+    }
+
     var db: DataManipulation? = null
 
     inner class MyBroadcastReceiver: BroadcastReceiver() {
@@ -72,6 +78,8 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        activityVisible = true
+
         setContentView(R.layout.activity_main)
 
         db = DataManipulation(applicationContext)
@@ -88,12 +96,14 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     override fun onStart() {
         super.onStart()
+        activityVisible = true
         configureReceiver()
         Log.i("xablau", "ONSTART")
         try {
             doAsync {
                 val downloadServiceIntent = Intent(applicationContext, DownloadFeedService::class.java)
                 downloadServiceIntent.putExtra("url", preference!!.rssFeed)
+                downloadServiceIntent.putExtra("foreground", isActivityVisible())
                 startService(downloadServiceIntent)
             }
         } catch (e: IOException) {
@@ -104,15 +114,23 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     override fun onRestart() {
         super.onRestart()
+        activityVisible = true
         configureReceiver()
     }
 
     override fun onResume() {
         super.onResume()
+        activityVisible = true
         configureReceiver()
     }
 
+    override fun onPause() {
+        activityVisible = false
+        super.onPause()
+    }
+
     override fun onStop() {
+        activityVisible = false
         deactivateReceiver()
         super.onStop()
     }

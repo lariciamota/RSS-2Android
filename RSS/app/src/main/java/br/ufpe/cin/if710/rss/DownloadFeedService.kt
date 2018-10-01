@@ -29,7 +29,9 @@ class DownloadFeedService: IntentService("DownloadFeedService") {
             val broadcastIntent = Intent("br.ufpe.cin.if710.rss")
             sendBroadcast(broadcastIntent)
             if (houveMudanca){
-                sendBroadcast(Intent("br.ufpe.cin.if710.rss.static"))
+                val broadcastStaticIntent = Intent("br.ufpe.cin.if710.rss.static")
+                broadcastStaticIntent.putExtra("foreground", intent.extras.getBoolean("foreground"))
+                sendBroadcast(broadcastStaticIntent)
             }
         } catch (e2: IOException) {
             Log.e(javaClass.getName(), "Exception durante download", e2)

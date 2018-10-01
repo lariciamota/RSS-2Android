@@ -24,25 +24,29 @@ class MyStaticBroadcastReceiver : BroadcastReceiver() {
     private val MY_NOTIFICATION_ID = 1
 
     override fun onReceive(context: Context, intent: Intent) {
-        mNotifyManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        Log.i("xablau", "ONNOTIFICATION")
-        //notificacao
-        mNotificationIntent = Intent(context, NotificationActivity::class.java)
-        //flag activity new task
-        mContentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, 0)
+        val isForeground = intent.getBooleanExtra("foreground", false)
+        if (!isForeground){
+            mNotifyManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            Log.i("xablau", "ONNOTIFICATION")
+            //notificacao
+            mNotificationIntent = Intent(context, MainActivity::class.java)
+            //flag activity new task
+            mContentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, 0)
 
-        val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .setContentTitle(contentTitle)
-                .setContentText(contentText)
-                .setAutoCancel(true)
-                .setContentIntent(mContentIntent)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .build()
+            val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                    .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                    .setContentTitle(contentTitle)
+                    .setContentText(contentText)
+                    .setAutoCancel(true)
+                    .setContentIntent(mContentIntent)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .build()
 
-        // passa notificacao para o notification manager
-        mNotifyManager!!.notify(MY_NOTIFICATION_ID, notification)
-        Log.i("xablau", "ONNOTIFICATION dps de notificar")
-        Toast.makeText(context, "INTENT Recebido pelo StaticReceiver", Toast.LENGTH_LONG).show()
+            // passa notificacao para o notification manager
+            mNotifyManager!!.notify(MY_NOTIFICATION_ID, notification)
+            Log.i("xablau", "ONNOTIFICATION dps de notificar")
+            Toast.makeText(context, "INTENT Recebido pelo StaticReceiver", Toast.LENGTH_LONG).show()
+
+        }
     }
 }
