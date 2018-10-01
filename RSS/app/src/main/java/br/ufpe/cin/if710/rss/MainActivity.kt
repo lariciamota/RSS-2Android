@@ -1,9 +1,6 @@
 package br.ufpe.cin.if710.rss
 
-import android.content.BroadcastReceiver
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.SharedPreferences
+import android.content.*
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.Uri
 import android.os.Bundle
@@ -31,20 +28,43 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
-class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener, MyResultReceiver.Receiver {
-    private val intentFilter = IntentFilter("br.ufpe.cin.if710.rss")
-    private val receiver = MyBroadcastReceiver()
+class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
+    var db: DataManipulation? = null
 
-    override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
-        val data = resultData.get(MyResultReceiver.DATA_KEY) as List<ItemRSS>
-        val adapter = RecyclerCustomAdapter(data) //personalizado para mostrar titulo e data
+    inner class MyBroadcastReceiver: BroadcastReceiver() {
+
+        override fun onReceive(context: Context, intent: Intent) {
+            printFeed()
+            Toast.makeText(context, "Broadcast Intent Detected.",
+                    Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun printFeed(){
+        Log.i("xablau", "PRINT")
+        val data = db!!.getItems()
+        Log.i("xablau", "Data: $data")
+        val adapter = RecyclerCustomAdapter(data)
         doAsync {
-            uiThread{
-                conteudoRSS!!.adapter = adapter //colocando o conteudo de fato na view
+            uiThread {
+                conteudoRSS!!.adapter = adapter
             }
         }
-
     }
+
+    private val intentFilter = IntentFilter("br.ufpe.cin.if710.rss")
+    private val receiver = MyBroadcastReceiver()
+//
+//    override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+//        val data = resultData.get(MyResultReceiver.DATA_KEY) as List<ItemRSS>
+//        val adapter = RecyclerCustomAdapter(data) //personalizado para mostrar titulo e data
+//        doAsync {
+//            uiThread{
+//                conteudoRSS!!.adapter = adapter //colocando o conteudo de fato na view
+//            }
+//        }
+//
+//    }
 
     private fun configureReceiver() {
         registerReceiver(receiver, intentFilter);
@@ -76,6 +96,8 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener, MyRe
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
+        db = DataManipulation(applicationContext)
 
         RSS_FEED = getString(R.string.rssfeed) //url vem do arquivo de strings
         conteudoRSS = findViewById(R.id.conteudoRSS)
@@ -114,11 +136,6 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener, MyRe
         super.onResume()
         configureReceiver()
     }
-
-//    override fun onPause() {
-//        deactivateReceiver()
-//        super.onPause()
-//    }
 
     override fun onStop() {
         deactivateReceiver()

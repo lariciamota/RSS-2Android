@@ -72,7 +72,7 @@ class SQLiteRSSHelper private constructor(internal var c: Context) : SQLiteOpenH
     val items: Cursor?
         @Throws(SQLException::class)
         get() {
-            return this.writableDatabase.rawQuery("SELECT $ITEM_TITLE, $ITEM_LINK, $ITEM_DATE, $ITEM_DESC FROM $DATABASE_TABLE WHERE $ITEM_UNREAD = ?", arrayOf(true.toString()))
+            return this.writableDatabase.rawQuery("SELECT $ITEM_TITLE, $ITEM_LINK, $ITEM_DATE, $ITEM_DESC FROM $DATABASE_TABLE WHERE $ITEM_UNREAD = ?", arrayOf("1"))
         }
 
     fun markAsUnread(link: String): Boolean {

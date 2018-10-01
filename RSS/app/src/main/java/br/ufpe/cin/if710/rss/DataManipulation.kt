@@ -14,6 +14,19 @@ class DataManipulation (context: Context){
         db.insertItem(item) //inserindo item no banco de dados
     }
 
+    fun getItems(): List<ItemRSS>{
+        var cursor = db.items
+        var list = arrayListOf<ItemRSS>()
+        if(cursor!!.moveToFirst()){
+            cursor.moveToFirst()
+            while (!cursor.isAfterLast){
+                list.add(db.getItemRSS(cursor.getString(1))!!)
+                cursor.moveToNext()
+            }
+        }
+        return list
+    }
+
     fun markAsRead(item: ItemRSS){
         db.markAsRead(item.link) //marcar noticia como lida ao clicar nela
     }
