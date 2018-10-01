@@ -21,6 +21,15 @@
         </activity>
         <activity android:name=".PrefsFragmentActivity"></activity>
         <service android:name=".DownloadFeedService"/>
+        <receiver
+            android:name=".MyStaticBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="br.ufpe.cin.if710.rss.static" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

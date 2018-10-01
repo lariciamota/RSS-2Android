@@ -2,11 +2,7 @@ package br.ufpe.cin.if710.rss
 
 import android.content.*
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Parcelable
-import android.os.ResultReceiver
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -14,29 +10,14 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.TextView
 import android.widget.Toast
-import br.ufpe.cin.if710.rss.ParserRSS.parse
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.getStackTraceString
 import org.jetbrains.anko.uiThread
-import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
 
 
 class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
     var db: DataManipulation? = null
-
-    inner class MyStaticBroadcastReceiver: BroadcastReceiver(){
-        override fun onReceive(context: Context, intent: Intent) {
-            //exibir notificacao
-        }
-
-    }
 
     inner class MyBroadcastReceiver: BroadcastReceiver() {
 
@@ -59,9 +40,7 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         }
     }
 
-    private val intentFilterStatic = IntentFilter("br.ufpe.cin.if710.rss.static")
     private val intentFilter = IntentFilter("br.ufpe.cin.if710.rss")
-    private val receiverStatic = MyStaticBroadcastReceiver()
     private val receiver = MyBroadcastReceiver()
 //
 //    override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
