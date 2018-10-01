@@ -29,6 +29,7 @@ class MyStaticBroadcastReceiver : BroadcastReceiver() {
         mContentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, 0)
 
         val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .setContentTitle(contentTitle)
                 .setContentText(contentText)
                 .setAutoCancel(true)

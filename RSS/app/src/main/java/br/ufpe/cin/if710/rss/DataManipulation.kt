@@ -4,10 +4,15 @@ import android.content.Context
 
 class DataManipulation (context: Context){
     val db = SQLiteRSSHelper.getInstance(context)
-    fun insert(items: List<ItemRSS>){
+    fun insert(items: List<ItemRSS>): Boolean{
+        var houveMudanca: Boolean = false
         for(i in items.indices){
-            db.insertItem(items[i]) //inserindo item no banco de dados
+            var a = db.insertItem(items[i]) //inserindo item no banco de dados
+            if (a != 0.toLong()){
+                houveMudanca = true
+            }
         }
+        return houveMudanca
     }
 
     fun insertItem(item: ItemRSS){
