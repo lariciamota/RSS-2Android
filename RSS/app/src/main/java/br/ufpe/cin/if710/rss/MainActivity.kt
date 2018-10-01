@@ -42,17 +42,6 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     private val intentFilter = IntentFilter("br.ufpe.cin.if710.rss")
     private val receiver = MyBroadcastReceiver()
-//
-//    override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
-//        val data = resultData.get(MyResultReceiver.DATA_KEY) as List<ItemRSS>
-//        val adapter = RecyclerCustomAdapter(data) //personalizado para mostrar titulo e data
-//        doAsync {
-//            uiThread{
-//                conteudoRSS!!.adapter = adapter //colocando o conteudo de fato na view
-//            }
-//        }
-//
-//    }
 
     private fun configureReceiver() {
         registerReceiver(receiver, intentFilter);
@@ -105,8 +94,6 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
             doAsync {
                 val downloadServiceIntent = Intent(applicationContext, DownloadFeedService::class.java)
                 downloadServiceIntent.putExtra("url", preference!!.rssFeed)
-//                val myreceiver = MyResultReceiver(this@MainActivity)
-//                downloadServiceIntent.putExtra(MyResultReceiver.INTENT_KEY, myreceiver)
                 startService(downloadServiceIntent)
             }
         } catch (e: IOException) {
