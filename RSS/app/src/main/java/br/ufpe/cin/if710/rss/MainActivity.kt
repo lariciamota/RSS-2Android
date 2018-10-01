@@ -31,6 +31,13 @@ import java.net.URL
 class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
     var db: DataManipulation? = null
 
+    inner class MyStaticBroadcastReceiver: BroadcastReceiver(){
+        override fun onReceive(context: Context, intent: Intent) {
+            //exibir notificacao
+        }
+
+    }
+
     inner class MyBroadcastReceiver: BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
@@ -52,7 +59,9 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         }
     }
 
+    private val intentFilterStatic = IntentFilter("br.ufpe.cin.if710.rss.static")
     private val intentFilter = IntentFilter("br.ufpe.cin.if710.rss")
+    private val receiverStatic = MyStaticBroadcastReceiver()
     private val receiver = MyBroadcastReceiver()
 //
 //    override fun onReceiveResult(resultCode: Int, resultData: Bundle) {

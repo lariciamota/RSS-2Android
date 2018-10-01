@@ -21,11 +21,6 @@
         </activity>
         <activity android:name=".PrefsFragmentActivity"></activity>
         <service android:name=".DownloadFeedService"/>
-        <receiver
-            android:name=".MyBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true" />
-
     </application>
 
 </manifest>

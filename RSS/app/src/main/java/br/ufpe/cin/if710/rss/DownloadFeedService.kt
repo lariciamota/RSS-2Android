@@ -33,6 +33,7 @@ class DownloadFeedService: IntentService("DownloadFeedService") {
 //            myReceiver!!.send(1, bundle)
             val broadcastIntent = Intent("br.ufpe.cin.if710.rss")
             sendBroadcast(broadcastIntent)
+            sendBroadcast(Intent("br.ufpe.cin.if710.rss.static"))
         } catch (e2: IOException) {
             Log.e(javaClass.getName(), "Exception durante download", e2)
         }
