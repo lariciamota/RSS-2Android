@@ -26,11 +26,12 @@ class DownloadFeedService: IntentService("DownloadFeedService") {
             Log.i("xablau", feedXML.size.toString())
             val db = DataManipulation(this)
             db.insert(feedXML)
-            val bundle = Bundle().apply {
-                putParcelableArrayList(MyResultReceiver.DATA_KEY, feedXML as ArrayList<out Parcelable>)
-            }
-            myReceiver = intent.getParcelableExtra(MyResultReceiver.INTENT_KEY)
-            myReceiver!!.send(1, bundle)
+//            val bundle = Bundle().apply {
+//                putParcelableArrayList(MyResultReceiver.DATA_KEY, feedXML as ArrayList<out Parcelable>)
+//            }
+//            myReceiver = intent.getParcelableExtra(MyResultReceiver.INTENT_KEY)
+//            myReceiver!!.send(1, bundle)
+            sendBroadcast(Intent("br.ufpe.cin.if710.rss"))
         } catch (e2: IOException) {
             Log.e(javaClass.getName(), "Exception durante download", e2)
         }

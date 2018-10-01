@@ -1,6 +1,8 @@
 package br.ufpe.cin.if710.rss
 
+import android.content.BroadcastReceiver
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.Uri
@@ -17,6 +19,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import br.ufpe.cin.if710.rss.ParserRSS.parse
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.getStackTraceString
@@ -29,6 +32,9 @@ import java.net.URL
 
 
 class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener, MyResultReceiver.Receiver {
+    private val intentFilter = IntentFilter("br.ufpe.cin.if710.rss")
+    private val receiver = MyBroadcastReceiver()
+
     override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
         val data = resultData.get(MyResultReceiver.DATA_KEY) as List<ItemRSS>
         val adapter = RecyclerCustomAdapter(data) //personalizado para mostrar titulo e data
@@ -38,6 +44,16 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener, MyRe
             }
         }
 
+    }
+
+    private fun configureReceiver() {
+        registerReceiver(receiver, intentFilter);
+        Toast.makeText(this, "Registrando...", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun deactivateReceiver() {
+        unregisterReceiver(receiver);
+        Toast.makeText(this, "Removendo registro...", Toast.LENGTH_SHORT).show()
     }
 
     var preference: Prefs? = null
@@ -73,20 +89,40 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener, MyRe
 
     override fun onStart() {
         super.onStart()
-
+        configureReceiver()
         Log.i("xablau", "ONSTART")
         try {
             doAsync {
                 val downloadServiceIntent = Intent(applicationContext, DownloadFeedService::class.java)
                 downloadServiceIntent.putExtra("url", preference!!.rssFeed)
-                val myreceiver = MyResultReceiver(this@MainActivity)
-                downloadServiceIntent.putExtra(MyResultReceiver.INTENT_KEY, myreceiver)
+//                val myreceiver = MyResultReceiver(this@MainActivity)
+//                downloadServiceIntent.putExtra(MyResultReceiver.INTENT_KEY, myreceiver)
                 startService(downloadServiceIntent)
             }
         } catch (e: IOException) {
             e.printStackTrace()
         }
 
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        configureReceiver()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        configureReceiver()
+    }
+
+//    override fun onPause() {
+//        deactivateReceiver()
+//        super.onPause()
+//    }
+
+    override fun onStop() {
+        deactivateReceiver()
+        super.onStop()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, p1: String?) {
